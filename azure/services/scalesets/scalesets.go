@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-30/compute"
+	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
 	"github.com/Azure/go-autorest/autorest/to"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
@@ -381,7 +381,7 @@ func (s *Service) buildVMSSFromSpec(ctx context.Context, vmssSpec azure.ScaleSet
 		Zones: to.StringSlicePtr(vmssSpec.FailureDomains),
 		VirtualMachineScaleSetProperties: &compute.VirtualMachineScaleSetProperties{
 			UpgradePolicy: &compute.UpgradePolicy{
-				Mode: compute.UpgradeModeManual,
+				Mode: compute.Manual,
 			},
 			DoNotRunExtensionsOnOverprovisionedVMs: to.BoolPtr(true),
 			VirtualMachineProfile: &compute.VirtualMachineScaleSetVMProfile{
@@ -435,7 +435,7 @@ func (s *Service) buildVMSSFromSpec(ctx context.Context, vmssSpec azure.ScaleSet
 		// Once we have scheduled events termination notification we can switch upgrade policy to be rolling
 		vmss.VirtualMachineScaleSetProperties.UpgradePolicy = &compute.UpgradePolicy{
 			// Prefer rolling upgrade compared to Automatic (which updates all instances at same time)
-			Mode: compute.UpgradeModeRolling,
+			Mode: compute.Rolling,
 			// We need to set the rolling upgrade policy based on user defined values
 			// for now lets stick to defaults, future PR will include the configurability
 			// RollingUpgradePolicy: &compute.RollingUpgradePolicy{},

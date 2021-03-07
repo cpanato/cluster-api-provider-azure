@@ -24,9 +24,8 @@ import (
 	context "context"
 	reflect "reflect"
 
-	compute "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-30/compute"
+	compute "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
 	network "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2019-11-01/network"
-	autorest "github.com/Azure/go-autorest/autorest"
 	gomock "github.com/golang/mock/gomock"
 	v1alpha3 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
 )
@@ -229,57 +228,4 @@ func (m *MockClient) UpdateInstances(arg0 context.Context, arg1, arg2 string, ar
 func (mr *MockClientMockRecorder) UpdateInstances(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateInstances", reflect.TypeOf((*MockClient)(nil).UpdateInstances), arg0, arg1, arg2, arg3)
-}
-
-// MockgenericScaleSetFuture is a mock of genericScaleSetFuture interface.
-type MockgenericScaleSetFuture struct {
-	ctrl     *gomock.Controller
-	recorder *MockgenericScaleSetFutureMockRecorder
-}
-
-// MockgenericScaleSetFutureMockRecorder is the mock recorder for MockgenericScaleSetFuture.
-type MockgenericScaleSetFutureMockRecorder struct {
-	mock *MockgenericScaleSetFuture
-}
-
-// NewMockgenericScaleSetFuture creates a new mock instance.
-func NewMockgenericScaleSetFuture(ctrl *gomock.Controller) *MockgenericScaleSetFuture {
-	mock := &MockgenericScaleSetFuture{ctrl: ctrl}
-	mock.recorder = &MockgenericScaleSetFutureMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockgenericScaleSetFuture) EXPECT() *MockgenericScaleSetFutureMockRecorder {
-	return m.recorder
-}
-
-// DoneWithContext mocks base method.
-func (m *MockgenericScaleSetFuture) DoneWithContext(ctx context.Context, sender autorest.Sender) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DoneWithContext", ctx, sender)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DoneWithContext indicates an expected call of DoneWithContext.
-func (mr *MockgenericScaleSetFutureMockRecorder) DoneWithContext(ctx, sender interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DoneWithContext", reflect.TypeOf((*MockgenericScaleSetFuture)(nil).DoneWithContext), ctx, sender)
-}
-
-// Result mocks base method.
-func (m *MockgenericScaleSetFuture) Result(client compute.VirtualMachineScaleSetsClient) (compute.VirtualMachineScaleSet, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Result", client)
-	ret0, _ := ret[0].(compute.VirtualMachineScaleSet)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Result indicates an expected call of Result.
-func (mr *MockgenericScaleSetFutureMockRecorder) Result(client interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Result", reflect.TypeOf((*MockgenericScaleSetFuture)(nil).Result), client)
 }

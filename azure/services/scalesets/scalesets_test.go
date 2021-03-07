@@ -22,7 +22,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-30/compute"
+	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/to"
 	"github.com/golang/mock/gomock"
@@ -883,7 +883,7 @@ func newDefaultVMSS() compute.VirtualMachineScaleSet {
 		Zones: &[]string{"1", "3"},
 		VirtualMachineScaleSetProperties: &compute.VirtualMachineScaleSetProperties{
 			UpgradePolicy: &compute.UpgradePolicy{
-				Mode: compute.UpgradeModeRolling,
+				Mode: compute.Rolling,
 			},
 			DoNotRunExtensionsOnOverprovisionedVMs: to.BoolPtr(true),
 			VirtualMachineProfile: &compute.VirtualMachineScaleSetVMProfile{

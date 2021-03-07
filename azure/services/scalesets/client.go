@@ -23,10 +23,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-06-30/compute"
+	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
 	"github.com/Azure/azure-sdk-for-go/services/network/mgmt/2019-11-01/network"
 	"github.com/Azure/go-autorest/autorest"
+	az "github.com/Azure/go-autorest/autorest/azure"
 	"github.com/pkg/errors"
+	"k8s.io/utils/pointer"
 
 	infrav1 "sigs.k8s.io/cluster-api-provider-azure/api/v1alpha3"
 	"sigs.k8s.io/cluster-api-provider-azure/azure"
@@ -57,9 +59,9 @@ type (
 		publicIPs   network.PublicIPAddressesClient
 	}
 
-	genericScaleSetFuture interface {
-		DoneWithContext(ctx context.Context, sender autorest.Sender) (done bool, err error)
-		Result(client compute.VirtualMachineScaleSetsClient) (vmss compute.VirtualMachineScaleSet, err error)
+	genericScaleSetFuture struct {
+		az.FutureAPI
+		Result func(client compute.VirtualMachineScaleSetsClient) (vmss compute.VirtualMachineScaleSet, err error)
 	}
 
 	deleteResultAdapter struct {
@@ -275,28 +277,28 @@ func (ac *AzureClient) GetResultIfDone(ctx context.Context, future *infrav1.Futu
 			return compute.VirtualMachineScaleSet{}, errors.Wrap(err, "failed to unmarshal future data")
 		}
 
-		genericFuture = &future
+		genericFuture.FutureAPI = &future
 	case PutFuture:
 		var future compute.VirtualMachineScaleSetsCreateOrUpdateFuture
 		if err := json.Unmarshal(futureData, &future); err != nil {
 			return compute.VirtualMachineScaleSet{}, errors.Wrap(err, "failed to unmarshal future data")
 		}
 
-		genericFuture = &future
+		genericFuture.FutureAPI = &future
 	case DeleteFuture:
 		var future compute.VirtualMachineScaleSetsDeleteFuture
 		if err := json.Unmarshal(futureData, &future); err != nil {
 			return compute.VirtualMachineScaleSet{}, errors.Wrap(err, "failed to unmarshal future data")
 		}
 
-		genericFuture = &deleteResultAdapter{
+		genericFuture.FutureAPI = &deleteResultAdapter{
 			VirtualMachineScaleSetsDeleteFuture: future,
 		}
 	default:
 		return compute.VirtualMachineScaleSet{}, errors.Errorf("unknown furture type %q", future.Type)
 	}
 
-	done, err := genericFuture.DoneWithContext(ctx, ac.scalesets)
+	done, err := genericFuture.FutureAPI.DoneWithContext(ctx, ac.scalesets)
 	if err != nil {
 		return compute.VirtualMachineScaleSet{}, errors.Wrapf(err, "failed checking if the operation was complete")
 	}
@@ -338,7 +340,7 @@ func (ac *AzureClient) Delete(ctx context.Context, resourceGroupName, vmssName s
 	ctx, span := tele.Tracer().Start(ctx, "scalesets.AzureClient.Delete")
 	defer span.End()
 
-	future, err := ac.scalesets.Delete(ctx, resourceGroupName, vmssName)
+	future, err := ac.scalesets.Delete(ctx, resourceGroupName, vmssName, pointer.BoolPtr(true))
 	if err != nil {
 		return err
 	}
@@ -361,7 +363,7 @@ func (ac *AzureClient) DeleteAsync(ctx context.Context, resourceGroupName, vmssN
 	ctx, span := tele.Tracer().Start(ctx, "scalesets.AzureClient.DeleteAsync")
 	defer span.End()
 
-	future, err := ac.scalesets.Delete(ctx, resourceGroupName, vmssName)
+	future, err := ac.scalesets.Delete(ctx, resourceGroupName, vmssName, pointer.BoolPtr(true))
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed deleting vmss named %q", vmssName)
 	}
